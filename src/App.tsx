@@ -1,28 +1,48 @@
+import { onMount, createSignal, For } from 'solid-js'
 import type { Component } from 'solid-js'
 
-import logo from './logo.svg'
+// Styles
 import styles from './App.module.css'
 
+// JSON
+import * as wakatimeJSON from './data/wakatime.json'
+
+// Types
+import { WakatimeData } from '../types'
+
+
 const App: Component = () => {
+  const [user, setUser] = createSignal({} as any)
+  const [data, setData] = createSignal([] as any)
+
+  onMount(async () => {
+    setUser((wakatimeJSON as WakatimeData).user)
+    setData((wakatimeJSON as WakatimeData).days)
+  })
+
   return (
     <div class={styles.App}>
       <header class={styles.header}>
         <p>
-          Wakatime Viewer
+          Wakatime Viewer of {user().display_name} data
         </p>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
       </header>
+
+      <For each={data()}>
+        {(day: any) => <>
+          ---------------------
+          {day.projects.length > 0 ? <div>Day: {day.date}</div> : ''}
+          <For each={day.projects}>
+            {(project: any) =>
+              <>
+                <div>Project: {project.name}</div>
+                <div>Grand total: {project.grand_total.decimal}</div>
+              </>
+            }
+          </For>
+        </>
+        }
+      </For>
     </div>
   )
 }
